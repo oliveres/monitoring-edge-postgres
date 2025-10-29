@@ -25,7 +25,9 @@ services:
       - postgres-exporter
 
   promtail:
-    image: grafana/promtail:latest
+    build:
+      context: ./promtail
+      dockerfile: Dockerfile
     container_name: monitoring-promtail
     restart: unless-stopped
     user: "0:0"
@@ -37,7 +39,6 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
       - promtail-data:/tmp
-      - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
     environment:
       - HOSTNAME=${HOSTNAME:-edge-host}
       - CENTRAL_LOKI_URL=${CENTRAL_LOKI_URL}
