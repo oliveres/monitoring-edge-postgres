@@ -94,7 +94,7 @@ services:
     restart: unless-stopped
     networks:
       - monitoring
-      - dispatch-network  # External network to reach PostgreSQL
+      - ${POSTGRES_NETWORK:-postgres-network}  # External network to reach PostgreSQL
     expose:
       - 9187
     environment:
@@ -116,5 +116,6 @@ volumes:
 networks:
   monitoring:
     driver: bridge
-  dispatch-network:
+  postgres-network:
+    name: ${POSTGRES_NETWORK:-postgres-network}
     external: true
