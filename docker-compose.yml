@@ -1,6 +1,8 @@
 services:
   prometheus:
-    image: prom/prometheus:latest
+    build:
+      context: ./prometheus
+      dockerfile: Dockerfile
     container_name: monitoring-prometheus
     restart: unless-stopped
     user: "nobody"
@@ -12,8 +14,6 @@ services:
       - '--storage.tsdb.retention.time=0'  # Zero retention - pure agent mode
       - '--web.listen-address=0.0.0.0:9090'
       - '--web.enable-lifecycle'
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     environment:
       - HOSTNAME=${HOSTNAME:-edge-host}
       - CENTRAL_PROMETHEUS_URL=${CENTRAL_PROMETHEUS_URL}
