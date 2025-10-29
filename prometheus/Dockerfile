@@ -1,14 +1,15 @@
-FROM prom/prometheus:latest
+FROM alpine:3.20 AS builder
 
-# Install envsubst (part of gettext package)
-USER root
 RUN apk add --no-cache gettext
+RUN mkdir /out
 
-# Copy config template and entrypoint script
-COPY prometheus.yml.template /etc/prometheus/prometheus.yml.template
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+ARG HOSTNAME
+ARG CENTRAL_PROMETHEUS_URL
+ARG BASIC_AUTH_USER
+ARG BASIC_AUTH_PASSWORD
 
-USER nobody
+COPY prometheus.yml.template /tmp/prometheus.yml.template
+RUN envsubst < /tmp/prometheus.yml.template > /out/prometheus.yml
 
-ENTRYPOINT ["/entrypoint.sh"]
+FROM prom/prometheus:latest
+COPY --from=builder /out/prometheus.yml /etc/prometheus/prometheus.yml
