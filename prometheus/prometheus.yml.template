@@ -23,6 +23,14 @@ scrape_configs:
       - targets: ['node-exporter:9100']
         labels:
           host: '${HOSTNAME}'
+    relabel_configs:
+      - target_label: instance
+        replacement: '${HOSTNAME}'
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: node_uname_info
+        target_label: nodename
+        replacement: '${HOSTNAME}'
 
   # Self-monitoring
   - job_name: 'prometheus'
