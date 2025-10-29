@@ -32,9 +32,8 @@ scrape_configs:
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
-        filters:
-          - name: label
-            values: ["logging=promtail"]
+        # Filter removed - collect logs from all containers
+        # To filter specific containers, add label 'logging=promtail' to docker-compose
 
     # Relabel to set metadata
     relabel_configs:
