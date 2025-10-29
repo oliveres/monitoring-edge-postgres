@@ -1,14 +1,6 @@
 FROM grafana/promtail:latest
 
-# Install envsubst (part of gettext package)
-USER root
-RUN apk add --no-cache gettext
+COPY promtail-config.yaml /etc/promtail/promtail-config.yaml
 
-# Copy config template and entrypoint script
-COPY promtail-config.yaml.template /etc/promtail/promtail-config.yaml.template
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-USER promtail
-
-ENTRYPOINT ["/entrypoint.sh"]
+# Promtail natively supports env variable expansion
+ENTRYPOINT ["/usr/bin/promtail", "-config.expand-env=true", "-config.file=/etc/promtail/promtail-config.yaml"]
