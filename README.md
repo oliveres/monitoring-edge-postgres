@@ -16,7 +16,7 @@ Monitoring agent for Docker hosts with PostgreSQL/TimescaleDB. Includes all feat
 - Docker Compose 2.0+
 - Access to central monitoring server (VPC or internet)
 - PostgreSQL/TimescaleDB database accessible from this host
-- External Docker network `dispatch-network` (for PostgreSQL connection)
+- External Docker network for PostgreSQL connection (configurable via POSTGRES_NETWORK env var)
 - Minimal resources: 512MB RAM, 1 vCPU
 
 ## Deployment
@@ -24,9 +24,12 @@ Monitoring agent for Docker hosts with PostgreSQL/TimescaleDB. Includes all feat
 ### Option 1: Portainer GitOps (Recommended)
 
 1. Create this repository on GitHub
-2. Ensure `dispatch-network` exists:
+2. Ensure PostgreSQL network exists:
    ```bash
-   docker network create dispatch-network
+   # Create network (use your network name, default: postgres-network)
+   docker network create postgres-network
+   # Or if using different name:
+   # docker network create dispatch-network
    ```
 3. In Portainer on edge host, go to **Stacks** → **Add stack**
 4. Select **Git Repository**
@@ -72,6 +75,9 @@ CENTRAL_LOKI_URL=http://10.116.0.2:3100/loki/api/v1/push
 
 # PostgreSQL connection
 POSTGRES_DATA_SOURCE_NAME=postgresql://user:password@postgres-host:5432/dbname?sslmode=disable
+
+# PostgreSQL network name (optional, default: postgres-network)
+# POSTGRES_NETWORK=dispatch-network
 
 # No authentication needed for VPC
 ```
@@ -271,15 +277,15 @@ docker exec monitoring-postgres-exporter \
 ### Network Issues
 
 ```bash
-# Verify dispatch-network exists
-docker network ls | grep dispatch
+# Verify PostgreSQL network exists
+docker network ls | grep postgres
 
-# If missing, create it
-docker network create dispatch-network
+# If missing, create it (use your network name)
+docker network create postgres-network
 
 # Check postgres-exporter is on both networks
 docker inspect monitoring-postgres-exporter | grep -A 10 Networks
-# Should show: monitoring AND dispatch-network
+# Should show: monitoring AND your PostgreSQL network (postgres-network or dispatch-network)
 ```
 
 ### PostgreSQL Permissions
@@ -347,7 +353,7 @@ rate(pg_total_failures{host="$host"}[5m])
 2. **Read-only permissions**: Monitoring user should only have SELECT
 3. **Secure password**: Use strong password in connection string
 4. **SSL recommended**: Use `sslmode=require` for production
-5. **Network isolation**: Use private network (VPC or dispatch-network)
+5. **Network isolation**: Use private network (VPC or PostgreSQL bridge network)
 
 ## Advanced Configuration
 
